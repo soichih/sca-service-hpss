@@ -1,0 +1,25 @@
+{
+  "name": "sca-service-hpss",
+  "version": "1.0.0",
+  "description": "HPSS service for SCA",
+  "main": "index.js",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/soichih/sca-service-hpss.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/soichih/sca-service-hpss/issues"
+  },
+  "homepage": "https://github.com/soichih/sca-service-hpss#readme",
+  "devDependencies": {
+    "mocha": "^2.3.4"
+  }
+}
