@@ -1,6 +1,6 @@
 'use strict';
 
-#node
+//node
 var fs = require('fs');
 
 var request = fs.readFileSync("request.json");
