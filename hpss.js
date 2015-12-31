@@ -8,8 +8,8 @@ var exec = require('child_process').exec;
 var async = require('async');
 
 //call hsi get on each paths listed in the request
-var request = JSON.parse(fs.readFileSync("./request.json", "utf8"));
-async.eachSeries(request.paths, function(path, next) {
+var config = JSON.parse(fs.readFileSync("./config.json", "utf8"));
+async.eachSeries(config.paths, function(path, next) {
     console.log("downloading "+path);
     exec('hsi get '+path, function(err, stdout, stderr) {
         if(err) console.dir(err);
