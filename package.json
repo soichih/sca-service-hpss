@@ -24,7 +24,7 @@
   },
   "dependencies": {
     "async": "^1.5.0",
-    "hpss": "0.0.8",
+    "hpss": "^0.0",
     "request": "^2.67.0"
   }
 }

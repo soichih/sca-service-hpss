@@ -6,7 +6,7 @@ exec > >(tee -a ${LOGFILE})
 exec 2> >(tee -a ${LOGFILE} >&2)
 
 #debug..
-#env > myenv.txt
+env
 
 #install node
 nodeversion=node-v4.2.4-linux-x64
@@ -18,6 +18,7 @@ fi
 export PATH=$PATH:$SCA_SERVICE_DIR/bin/$nodeversion/bin
 
 #make sure all npm deps are installed
+echo "installing/updating npm modules"
 (cd $SCA_SERVICE_DIR && npm update)
 
 module load hpss
