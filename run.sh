@@ -18,7 +18,7 @@ fi
 export PATH=$PATH:$SCA_SERVICE_DIR/bin/$nodeversion/bin
 
 #make sure all npm deps are installed
-(cd $SCA_SERVICE_DIR && npm install)
+(cd $SCA_SERVICE_DIR && npm update)
 
 module load hpss
 
