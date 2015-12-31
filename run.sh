@@ -21,5 +21,5 @@ module load hpss
 
 #hsi get "/hpss/h/a/hayashis/isos/CentOS-7-x86_64-Everything-1503-01.iso"
 #hsi ls > hsi.out 2> hsi.err
-node hpss.js 
+node $SCA_SERVICE_DIR/hpss.js 
 
