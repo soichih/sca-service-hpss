@@ -17,6 +17,9 @@ if [ ! -d $SCA_SERVICE_DIR/bin/$nodeversion ]; then
 fi
 export PATH=$PATH:$SCA_SERVICE_DIR/bin/$nodeversion/bin
 
+#make sure all npm deps are installed
+(cd $SCA_SERVICE_DIR && npm install)
+
 module load hpss
 
 #hsi get "/hpss/h/a/hayashis/isos/CentOS-7-x86_64-Everything-1503-01.iso"

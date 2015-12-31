@@ -21,5 +21,8 @@
   "homepage": "https://github.com/soichih/sca-service-hpss#readme",
   "devDependencies": {
     "mocha": "^2.3.4"
+  },
+  "dependencies": {
+    "async": "^1.5.0"
   }
 }
