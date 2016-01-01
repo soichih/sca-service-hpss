@@ -33,17 +33,22 @@ function progress(key, p, cb) {
     });
 }
 
-//call hsi get on each paths listed in the request
 var config = JSON.parse(fs.readFileSync("./config.json", "utf8"));
+
+//report to progress service about all of the files that needs to be downloaded
+for(var i = 0;i < config.paths.length; i++) {
+    progress("hpss.file_"+i, {status: "waiting", name: config.paths[i], progress: 0});
+}
+
+//call hsi get on each paths listed in the request
 var id = 0;
 async.eachSeries(config.paths, function(path, next) {
-    progress("hpss", {name: "hpss", msg: "Downloading "+path});
+    progress("hpss", {status: "running", name: "hpss", msg: "Downloading "+path});
     var context = new hpss.context();
     var key = "hpss.file_"+(id++);
-    progress(key, {status: "running", name: path, progress: 0});
     context.get(path, taskdir, next, function(p) {
         if(p.progress == 1) progress(key, {status: "finished", progress: 1});
-        else progress(key, {progress: p.progress});
+        else progress(key, {status: "running", progress: p.progress});
     });
     /*
     exec('hsi get '+path, function(err, stdout, stderr) {
@@ -56,5 +61,5 @@ async.eachSeries(config.paths, function(path, next) {
 }, function(err) {
     if(err) console.dir(err);
     console.log("all done");
-    progress("hpss", {msg: "Downloaded all files"});
+    progress("hpss", {status: "finished", msg: "Downloaded all files"});
 });
