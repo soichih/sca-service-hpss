@@ -37,7 +37,7 @@ function progress(key, p, cb) {
 var config = JSON.parse(fs.readFileSync("./config.json", "utf8"));
 var id = 0;
 async.eachSeries(config.paths, function(path, next) {
-    progress("hpss", {msg: "Downloading "+path});
+    progress("hpss", {name: "hpss", msg: "Downloading "+path});
     var context = new hpss.context();
     var key = "hpss.file_"+(id++);
     progress(key, {status: "running", name: path, progress: 0});
@@ -56,4 +56,5 @@ async.eachSeries(config.paths, function(path, next) {
 }, function(err) {
     if(err) console.dir(err);
     console.log("all done");
+    progress("hpss", {msg: "Downloaded all files"});
 });
