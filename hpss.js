@@ -61,6 +61,5 @@ async.eachSeries(config.paths, function(path, next) {
     */
 }, function(err) {
     if(err) console.dir(err);
-    console.log("all done");
     progress("hpss", {status: "finished", msg: "Downloaded all files"});
 });
