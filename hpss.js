@@ -47,8 +47,9 @@ async.eachSeries(config.paths, function(path, next) {
     var context = new hpss.context();
     var key = "hpss.file_"+(id++);
     context.get(path, taskdir, next, function(p) {
+        if(p.progress == 0) progress(key, {status: "running", progress: 0, msg: "Loading from Tape Archive"});
         if(p.progress == 1) progress(key, {status: "finished", progress: 1});
-        else progress(key, {status: "running", progress: p.progress});
+        else progress(key, {status: "running", progress: p.progress, msg: "Transferring data"});
     });
     /*
     exec('hsi get '+path, function(err, stdout, stderr) {
