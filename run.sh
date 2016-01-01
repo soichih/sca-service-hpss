@@ -6,7 +6,7 @@ exec > >(tee -a ${LOGFILE})
 exec 2> >(tee -a ${LOGFILE} >&2)
 
 #debug..
-env
+env | sort
 
 #install node
 nodeversion=node-v4.2.4-linux-x64
