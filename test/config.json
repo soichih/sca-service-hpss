@@ -1,6 +1,6 @@
 {
     "paths": [
-        "/hpss/h/a/hayashis/isos/CentOS-7-x86_64-Everything-1503-01.iso"
+        "/hpss/h/a/hayashis/isos/archlinux-2014.08.01-dual.iso"
     ],
     "resource_ids": {
         "compute": "56842954354c552207761708",

@@ -46,9 +46,15 @@ async.eachSeries(config.paths, function(path, next) {
     progress("hpss", {status: "running", name: "hpss", msg: "Downloading "+path});
     var context = new hpss.context();
     var key = "hpss.file_"+(id++);
-    context.get(path, taskdir, next, function(p) {
-        if(p.progress == 0) progress(key, {status: "running", progress: 0, msg: "Loading from Tape Archive"});
-        if(p.progress == 1) progress(key, {status: "finished", progress: 1});
+    context.get(path, taskdir, function(err) {
+        if(err) {
+            console.dir(err);
+            progress(key, {status: "failed", msg: "Failed to download a file"}, function() {
+                next(err); //abort the task
+            });
+        } else progress(key, {status: "finished", progress: 1, msg: "Downloaded"}, next);
+    }, function(p) {
+        if(p.progress == 0) progress(key, {status: "running", progress: 0, msg: "Loading from tape"});
         else progress(key, {status: "running", progress: p.progress, msg: "Transferring data"});
     });
     /*
@@ -60,6 +66,13 @@ async.eachSeries(config.paths, function(path, next) {
     });
     */
 }, function(err) {
-    if(err) console.dir(err);
-    progress("hpss", {status: "finished", msg: "Downloaded all files"});
+    if(err) {
+        progress("hpss", {status: "failed", msg: "Failed to download one of the files requested"}, function() {
+            process.exit(1);
+        });
+    } else {
+        progress("hpss", {status: "finished", msg: "Downloaded all files"}, function() {
+            process.exit(0);
+        });
+    }
 });
