@@ -16,10 +16,10 @@ if(process.env.HPSS_BEHIND_FIREWALL) {
 }
 
 function progress(key, p, cb) {
-    var api = "https://soichi7.ppa.iu.edu/api/progress/status/"+process.env.SCA_PROGRESS_KEY;
+    //var api = "https://soichi7.ppa.iu.edu/api/progress/status/"+process.env.SCA_PROGRESS_KEY;
     request({
         method: 'POST',
-        url: api+"."+key,
+        url: process.env.SCA_PROGRESS_URL+"/"+process.env.SCA_PROGRESS_KEY+"."+key,
         /*
         headers: {
             'Authorization': 'Bearer '+config.progress.jwt,
