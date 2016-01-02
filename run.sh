@@ -21,9 +21,8 @@ export PATH=$PATH:$SCA_SERVICE_DIR/bin/$nodeversion/bin
 echo "installing/updating npm modules"
 (cd $SCA_SERVICE_DIR && npm update)
 
+echo "running hpss.js"
 module load hpss
-
-#hsi get "/hpss/h/a/hayashis/isos/CentOS-7-x86_64-Everything-1503-01.iso"
-#hsi ls > hsi.out 2> hsi.err
 node $SCA_SERVICE_DIR/hpss.js 
+
 
