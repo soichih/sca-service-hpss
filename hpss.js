@@ -81,7 +81,7 @@ async.eachSeries(config.paths, function(_path, next) {
     } else {
         progress("hpss", {status: "finished", msg: "Downloaded all files"}, function() {
             //write out output file and exit
-            fs.writeFile("product.json", JSON.stringify([product], null, 4), function(err) {
+            fs.writeFile("products.json", JSON.stringify([product], null, 4), function(err) {
                 process.exit(0);
             });
         });
