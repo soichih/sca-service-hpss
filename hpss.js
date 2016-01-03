@@ -53,9 +53,8 @@ async.eachSeries(config.paths, function(_path, next) {
     var key = "hpss.file_"+(id++);
     context.get(_path, taskdir, function(err) {
         if(err) {
-            console.dir(err);
             progress(key, {status: "failed", msg: "Failed to download a file"}, function() {
-                next(err); //abort the task
+                next(); //skip this file and continue with other files
             });
         } else {
             product.files.push(path.basename(_path));
@@ -74,6 +73,19 @@ async.eachSeries(config.paths, function(_path, next) {
     });
     */
 }, function(err) {
+    var p = null;
+    if(config.paths.legth == product.files.length) {
+        p = { status: "finished", msg: "Downloaded all requested files"};
+    } else {
+        p = { status: "finished", msg: "Downloaded "+product.files.length+" out of "+config.paths.length+" files requested"};
+    }
+    progress("hpss", p, function() {
+        //write out output file and exit
+        fs.writeFile("products.json", JSON.stringify([product], null, 4), function(err) {
+            process.exit(0);
+        });
+    });
+    /*
     if(err) {
         progress("hpss", {status: "failed", msg: "Failed to download one of the files requested"}, function() {
             process.exit(1);
@@ -86,4 +98,5 @@ async.eachSeries(config.paths, function(_path, next) {
             });
         });
     }
+    */
 });
