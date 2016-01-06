@@ -59,12 +59,14 @@ async.eachSeries(config.paths, function(_path, next) {
                 next(); //skip this file and continue with other files
             });
         } else {
-            file.type = mime.lookup(_path);
+            file.type = mime.lookup(_path); //TODO should I use npm file-type instead?
+            var stats = fs.statSync(file.filename);
+            file.size = stats["size"];
             product.files.push(file);
             progress(key, {status: "finished", progress: 1, msg: "Downloaded"}, next);
         }
     }, function(p) {
-        if(p.total_size) file.size = p.total_size;
+        //if(p.total_size) file.size = p.total_size; //sometimes I don't get this info
         if(p.progress == 0) progress(key, {status: "running", progress: 0, msg: "Loading from tape"});
         else progress(key, {status: "running", progress: p.progress, msg: "Transferring data"});
     });
