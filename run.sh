@@ -6,7 +6,7 @@ exec > >(tee -a ${LOGFILE})
 exec 2> >(tee -a ${LOGFILE} >&2)
 
 #debug..
-env | sort
+env | sort | grep SCA
 
 #install node
 nodeversion=node-v4.2.4-linux-x64

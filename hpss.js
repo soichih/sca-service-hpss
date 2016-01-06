@@ -9,6 +9,7 @@ var path = require('path');
 var async = require('async');
 var hpss = require('hpss');
 var request = require('request');
+var mime = require('mime'); //mime just look at the filename.. maybe I should use file-type instead?
 
 //mine
 var config = JSON.parse(fs.readFileSync("./config.json", "utf8"));
@@ -51,16 +52,19 @@ async.eachSeries(config.paths, function(_path, next) {
     progress("hpss", {status: "running", name: "hpss", msg: "Downloading "+_path});
     var context = new hpss.context();
     var key = "hpss.file_"+(id++);
+    var file = {filename: path.basename(_path)};
     context.get(_path, taskdir, function(err) {
         if(err) {
             progress(key, {status: "failed", msg: "Failed to download a file"}, function() {
                 next(); //skip this file and continue with other files
             });
         } else {
-            product.files.push(path.basename(_path));
+            file.type = mime.lookup(_path);
+            product.files.push(file);
             progress(key, {status: "finished", progress: 1, msg: "Downloaded"}, next);
         }
     }, function(p) {
+        if(p.total_size) file.size = p.total_size;
         if(p.progress == 0) progress(key, {status: "running", progress: 0, msg: "Loading from tape"});
         else progress(key, {status: "running", progress: p.progress, msg: "Transferring data"});
     });
@@ -77,6 +81,7 @@ async.eachSeries(config.paths, function(_path, next) {
     if(config.paths.legth == product.files.length) {
         p = { status: "finished", msg: "Downloaded all requested files"};
     } else {
+        //TODO - I really should report "incomplete" or such status.
         p = { status: "finished", msg: "Downloaded "+product.files.length+" out of "+config.paths.length+" files requested"};
     }
     progress("hpss", p, function() {
@@ -85,18 +90,4 @@ async.eachSeries(config.paths, function(_path, next) {
             process.exit(0);
         });
     });
-    /*
-    if(err) {
-        progress("hpss", {status: "failed", msg: "Failed to download one of the files requested"}, function() {
-            process.exit(1);
-        });
-    } else {
-        progress("hpss", {status: "finished", msg: "Downloaded all files"}, function() {
-            //write out output file and exit
-            fs.writeFile("products.json", JSON.stringify([product], null, 4), function(err) {
-                process.exit(0);
-            });
-        });
-    }
-    */
 });
