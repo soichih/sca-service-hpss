@@ -8,14 +8,17 @@ exec 2> >(tee -a ${LOGFILE} >&2)
 #debug..
 env | sort | grep SCA
 
+#node is now installed in ~/.sca/bin
 #install node
-nodeversion=node-v4.2.4-linux-x64
-if [ ! -d $SCA_SERVICE_DIR/bin/$nodeversion ]; then
-    echo "installing $nodeversion in $SCA_SERVICE_DIR"
-    mkdir -p $SCA_SERVICE_DIR/bin
-    (cd $SCA_SERVICE_DIR/bin && curl https://nodejs.org/dist/v4.2.4/$nodeversion.tar.gz | tar -xz)
-fi
-export PATH=$PATH:$SCA_SERVICE_DIR/bin/$nodeversion/bin
+#nodeversion=node-v4.2.4-linux-x64
+#if [ ! -d $SCA_SERVICE_DIR/bin/$nodeversion ]; then
+#    echo "installing $nodeversion in $SCA_SERVICE_DIR"
+#    mkdir -p $SCA_SERVICE_DIR/bin
+#
+#    #TODO downloading from nodejs.org/dist is super slow.. cache this somewhere else
+#    (cd $SCA_SERVICE_DIR/bin && curl https://nodejs.org/dist/v4.2.4/$nodeversion.tar.gz | tar -xz)
+#fi
+export PATH=$PATH:~/.sca/bin/nodejs/bin
 
 #make sure all npm deps are installed
 echo "installing/updating npm modules"
