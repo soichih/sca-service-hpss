@@ -18,7 +18,7 @@ env | sort | grep SCA
 #    #TODO downloading from nodejs.org/dist is super slow.. cache this somewhere else
 #    (cd $SCA_SERVICE_DIR/bin && curl https://nodejs.org/dist/v4.2.4/$nodeversion.tar.gz | tar -xz)
 #fi
-export PATH=$PATH:~/.sca/bin/nodejs/bin
+export PATH=$PATH:~/.sca/bin/node/bin
 
 #make sure all npm deps are installed
 echo "installing/updating npm modules"
