@@ -43,7 +43,7 @@ function progress(subkey, p, cb) {
 
 //report to progress service about all of the files that needs to be downloaded
 for(var i = 0;i < config.paths.length; i++) {
-    progress("file_"+i, {status: "waiting", name: config.paths[i], progress: 0});
+    progress(".file_"+i, {status: "waiting", name: config.paths[i], progress: 0});
 }
 
 //call hsi get on each paths listed in the request
@@ -51,7 +51,7 @@ var id = 0;
 async.eachSeries(config.paths, function(_path, next) {
     //progress("", {status: "running", name: "hpss", msg: "Downloading "+_path});
     var context = new hpss.context();
-    var key = "file_"+(id++);
+    var key = ".file_"+(id++);
     var file = {filename: path.basename(_path)};
     context.get(_path, taskdir, function(err) {
         if(err) {
