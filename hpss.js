@@ -51,7 +51,7 @@ var id = 0;
 async.eachSeries(config.paths, function(_path, next) {
     progress("hpss", {status: "running", name: "hpss", msg: "Downloading "+_path});
     var context = new hpss.context();
-    var key = "hpss.file_"+(id++);
+    var key = "file_"+(id++);
     var file = {filename: path.basename(_path)};
     context.get(_path, taskdir, function(err) {
         if(err) {
