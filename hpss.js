@@ -27,7 +27,8 @@ function progress(subkey, p, cb) {
     //var api = "https://soichi7.ppa.iu.edu/api/progress/status/"+process.env.SCA_PROGRESS_KEY;
     request({
         method: 'POST',
-        url: process.env.SCA_PROGRESS_URL+"/"+process.env.SCA_PROGRESS_KEY+subkey,
+        //url: process.env.SCA_PROGRESS_URL+"/"+process.env.SCA_PROGRESS_KEY+subkey,
+        url: process.env.SCA_PROGRESS_URL+subkey,
         /*
         headers: {
             'Authorization': 'Bearer '+config.progress.jwt,
