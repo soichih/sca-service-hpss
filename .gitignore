@@ -1,2 +1,3 @@
 node_modules
 test/*.iso
+test/products.json

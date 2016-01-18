@@ -1,0 +1,12 @@
+[
+    {
+        "type": "raw",
+        "files": [
+            {
+                "filename": "archlinux-2014.08.01-dual.iso",
+                "type": "application/x-iso9660-image",
+                "size": 586153984
+            }
+        ]
+    }
+]
