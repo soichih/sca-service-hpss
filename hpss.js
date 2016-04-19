@@ -80,7 +80,7 @@ if(config.get) async.eachSeries(config.get, function(get, next) {
         p = { status: "finished", msg: "Downloaded all requested files"};
     } else {
         //TODO - I really should report "incomplete" or such status.
-        p = { status: "finished", msg: "Downloaded "+product.files.length+" out of "+config.paths.length+" files requested"};
+        p = { status: "finished", msg: "Downloaded "+product.files.length+" out of "+getid+" files requested"};
     }
     progress("", p, function() {
         //write out output file and exit
