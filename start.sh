@@ -18,9 +18,7 @@ module load nodejs
 echo "installing/updating npm modules"
 (cd $SCA_SERVICE_DIR && npm update)
 
-rm pid
-
+rm finished
 echo "starting hpss.js"
-nohup node $SCA_SERVICE_DIR/hpss.js & 
-echo $! > pid
+nohup node $SCA_SERVICE_DIR/hpss.js > stdout.log 2> stderr.log && echo $? > finished & 
 

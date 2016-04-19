@@ -3,9 +3,14 @@
         "type": "raw",
         "files": [
             {
-                "filename": "archlinux-2014.08.01-dual.iso",
-                "type": "application/x-iso9660-image",
-                "size": 586153984
+                "filename": "download/life_demo_data_sda1.tar.gz",
+                "type": "application/octet-stream",
+                "size": 363069884
+            },
+            {
+                "filename": "download/life_demo_data_sda2.tar.gz",
+                "type": "application/octet-stream",
+                "size": 363069884
             }
         ]
     }

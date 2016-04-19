@@ -8,19 +8,18 @@
 ##now wait for running to go away
 #progress_url={$SCA_PROGRESS_URL}/{$SCA_PROGRESS_KEY}
 
-if [ -f pid ]; then
-    pid=`cat pid`
-    ps -p $pid
-    if [ $? -eq 0 ]; then
-        echo "running"
-        exit 0
+#TODO I should submit interactive session to run this
+
+if [ -f finished ]; then
+    code=`cat finished`
+    if [ $code -eq 0 ]; then
+        echo "finished successfully"
+        exit 1 #success!
     else
-        echo "$pid not found"
-        #TODO - I need to store the exit code from hpss.js somehow and parse it here
-        exit 1
+        echo "finished with code:$code"
+        exit 2 #failed
     fi
-else
-    echo "pid not found.. not started yet?"
-    exit 3
 fi
 
+echo "assumed to be running"
+exit 0

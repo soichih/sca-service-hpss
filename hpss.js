@@ -10,6 +10,7 @@ var async = require('async');
 var hpss = require('hpss');
 var request = require('request');
 var mime = require('mime'); //mime just look at the filename.. maybe I should use file-type instead?
+var mkdirp = require('mkdirp');
 
 //mine
 var config = JSON.parse(fs.readFileSync("./config.json", "utf8"));
@@ -18,7 +19,7 @@ var product = {
     files: []
 };
 
-var taskdir = process.env.SCA_TASK_DIR;
+//var taskdir = process.env.SCA_TASK_DIR;
 if(process.env.HPSS_BEHIND_FIREWALL) {
     hpss.init({behind_firewall:true});
 }
@@ -55,25 +56,29 @@ if(config.get) async.eachSeries(config.get, function(get, next) {
     var _path = get.path;
     var destdir = get.dir;
 
-    var key = ".file_"+(getid++);
-    var file = {filename: path.basename(_path)};
-    context.get(_path, taskdir, function(err) {
-        if(err) {
-            progress(key, {status: "failed", msg: "Failed to download a file"}, function() {
-                next(); //skip this file and continue with other files
-            });
-        } else {
-            file.type = mime.lookup(_path); //TODO should I use npm file-type instead?
-            var stats = fs.statSync(file.filename);
-            file.size = stats["size"];
-            product.files.push(file);
-            progress(key, {status: "finished", progress: 1, msg: "Downloaded"}, next);
-        }
-    }, function(p) {
-        //if(p.total_size) file.size = p.total_size; //sometimes I don't get this info
-        if(p.progress == 0) progress(key, {status: "running", progress: 0, msg: "Loading from tape"});
-        else progress(key, {status: "running", progress: p.progress, msg: "Transferring data"});
-    });
+    mkdirp(destdir, function (err) {
+        if (err) return next(err);
+        var key = ".file_"+(getid++);
+        var file = {filename: destdir+"/"+path.basename(_path)};
+        context.get(_path, destdir, function(err) {
+            if(err) {
+                progress(key, {status: "failed", msg: "Failed to download a file"}, function() {
+                    next(); //skip this file and continue with other files
+                });
+            } else {
+                file.type = mime.lookup(file.filename); //TODO should I use npm file-type instead?
+                var stats = fs.statSync(file.filename);
+                file.size = stats["size"];
+                product.files.push(file);
+                progress(key, {status: "finished", progress: 1, msg: "Downloaded"}, next);
+            }
+        }, function(p) {
+            //if(p.total_size) file.size = p.total_size; //sometimes I don't get this info
+            if(p.progress == 0) progress(key, {status: "running", progress: 0, msg: "Loading from tape"});
+            else progress(key, {status: "running", progress: p.progress, msg: "Transferring data"});
+        });
+    }); 
+
 }, function(err) {
     var p = null;
     if(getid == product.files.length) {

@@ -1,5 +1,6 @@
 {
     "get": [
-        {"dir":"download", "path":"/hpss/h/a/hayashis/isos/archlinux-2014.08.01-dual.iso"}
+        {"dir":"download", "path":"test/brain/life_demo_data_sda1.tar.gz"},
+        {"dir":"download", "path":"test/brain/life_demo_data_sda2.tar.gz"}
     ]
 }
