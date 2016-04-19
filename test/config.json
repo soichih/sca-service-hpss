@@ -1,10 +1,5 @@
 {
-    "paths": [
-        "/hpss/h/a/hayashis/isos/archlinux-2014.08.01-dual.iso"
-    ],
-    "resource_ids": {
-        "compute": "56842954354c552207761708",
-        "hpss": "5682f80ae8a834a636dee418"
-    },
-    "service_id": "hpss_import"
+    "get": [
+        {"dir":"download", "path":"/hpss/h/a/hayashis/isos/archlinux-2014.08.01-dual.iso"}
+    ]
 }

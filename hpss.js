@@ -37,22 +37,25 @@ function progress(subkey, p, cb) {
         json: p, 
     }, function(err, res, body){
         //console.log("posted progress update:"+subkey);
-        console.dir(p);
+        console.dir([subkey, p]);
         if(cb) cb(err, body);
     });
 }
 
 //report to progress service about all of the files that needs to be downloaded
-for(var i = 0;i < config.paths.length; i++) {
-    progress(".file_"+i, {status: "waiting", name: config.paths[i], progress: 0});
+if(config.get) for(var i = 0;i < config.get.length; i++) {
+    progress(".file_"+i, {status: "waiting", name: config.get[i], progress: 0});
 }
 
+var context = new hpss.context();
+
 //call hsi get on each paths listed in the request
-var id = 0;
-async.eachSeries(config.paths, function(_path, next) {
-    //progress("", {status: "running", name: "hpss", msg: "Downloading "+_path});
-    var context = new hpss.context();
-    var key = ".file_"+(id++);
+var getid = 0;
+if(config.get) async.eachSeries(config.get, function(get, next) {
+    var _path = get.path;
+    var destdir = get.dir;
+
+    var key = ".file_"+(getid++);
     var file = {filename: path.basename(_path)};
     context.get(_path, taskdir, function(err) {
         if(err) {
@@ -71,17 +74,9 @@ async.eachSeries(config.paths, function(_path, next) {
         if(p.progress == 0) progress(key, {status: "running", progress: 0, msg: "Loading from tape"});
         else progress(key, {status: "running", progress: p.progress, msg: "Transferring data"});
     });
-    /*
-    exec('hsi get '+path, function(err, stdout, stderr) {
-        if(err) console.dir(err);
-        console.error(stderr);
-        console.log(stdout);
-        next();
-    });
-    */
 }, function(err) {
     var p = null;
-    if(config.paths.legth == product.files.length) {
+    if(getid == product.files.length) {
         p = { status: "finished", msg: "Downloaded all requested files"};
     } else {
         //TODO - I really should report "incomplete" or such status.

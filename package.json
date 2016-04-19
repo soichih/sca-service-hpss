@@ -13,7 +13,7 @@
     "type": "git",
     "url": "git+https://github.com/soichih/sca-service-hpss.git"
   },
-  "author": "",
+  "author": "Soichi Hayashi <hayashis@iu.edu>",
   "license": "ISC",
   "bugs": {
     "url": "https://github.com/soichih/sca-service-hpss/issues"
@@ -27,5 +27,17 @@
     "hpss": "^0.0",
     "mime": "^1.3.4",
     "request": "^2.67.0"
+  },
+  "sca": {
+    "label": "HPSS",
+    "resource_query": {
+        "score": {
+            "hpss": 100
+        }
+    },
+    "bin": {
+        "start": "start.sh",
+        "status": "status.sh"
+    }
   }
 }
