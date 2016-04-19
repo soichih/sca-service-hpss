@@ -45,7 +45,7 @@ function progress(subkey, p, cb) {
 
 //report to progress service about all of the files that needs to be downloaded
 if(config.get) for(var i = 0;i < config.get.length; i++) {
-    progress(".file_"+i, {status: "waiting", name: config.get[i], progress: 0});
+    progress(".file_"+i, {status: "waiting", name: config.get[i].path, progress: 0});
 }
 
 var context = new hpss.context({
