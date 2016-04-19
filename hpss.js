@@ -45,7 +45,10 @@ function progress(subkey, p, cb) {
 
 //report to progress service about all of the files that needs to be downloaded
 if(config.get) for(var i = 0;i < config.get.length; i++) {
-    progress(".file_"+i, {status: "waiting", name: config.get[i].path, progress: 0});
+    progress(".file_"+i, {status: "waiting", name: config.get[i].hpsspath, progress: 0});
+}
+if(config.put) for(var i = 0;i < config.put.length; i++) {
+    progress(".file_"+i, {status: "waiting", name: config.put[i].localpath, progress: 0});
 }
 
 var context = new hpss.context({
@@ -53,11 +56,16 @@ var context = new hpss.context({
     keytab: fs.readFileSync(process.env.HOME+"/.sca/keys/"+config.auth.keytab),
 });
 
+///////////////////////////////////////////////////////////////////////////////////////////////////
+//
+// get
+//
+
 //call hsi get on each paths listed in the request
 var getid = 0;
 if(config.get) async.eachSeries(config.get, function(get, next) {
-    var _path = get.path;
-    var destdir = get.dir;
+    var _path = get.hpsspath;
+    var destdir = get.localdir;
 
     mkdirp(destdir, function (err) {
         if (err) return next(err);
@@ -65,7 +73,7 @@ if(config.get) async.eachSeries(config.get, function(get, next) {
         var file = {filename: destdir+"/"+path.basename(_path)};
         context.get(_path, destdir, function(err) {
             if(err) {
-                progress(key, {status: "failed", msg: "Failed to download a file"}, function() {
+                progress(key, {status: "failed", msg: "Failed to get a file"}, function() {
                     next(); //skip this file and continue with other files
                 });
             } else {
@@ -93,6 +101,50 @@ if(config.get) async.eachSeries(config.get, function(get, next) {
     progress("", p, function() {
         //write out output file and exit
         fs.writeFile("products.json", JSON.stringify([product], null, 4), function(err) {
+            process.exit(0);
+        });
+    });
+});
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+//
+// put
+//
+
+var putid = 0;
+var putcount = 0; //number of files successfully uploaded
+if(config.put) async.eachSeries(config.put, function(put, next) {
+    console.dir(put);
+    //put.localpath 
+    //put.hpsspath
+
+    //TODO - mkdirp on sda..
+    //mkdirp(destdir, function (err) {
+    //    if (err) return next(err);
+        var key = ".file_"+(putid++);
+        context.put(put.localpath, put.hpsspath, function(err) {
+            if(err) {
+                progress(key, {status: "failed", msg: "Failed to put a file:"+put.localpath}, function() {
+                    next(); //skip this file and continue with other files
+                });
+            } else {
+                progress(key, {status: "finished", progress: 1, msg: "Uploaded"}, next);
+                putcount++;
+            }
+        }, function(p) {
+            progress(key, {status: "running", progress: p.progress, msg: "Transferring data"});
+        });
+}, function(err) {
+    var p = null;
+    if(getid == product.files.length) {
+        p = { status: "finished", msg: "Uploaded all requested files"};
+    } else {
+        //TODO - I really should report "incomplete" or such status.
+        p = { status: "finished", msg: "Uploaded "+putcount+" out of "+putid+" files requested"};
+    }
+    progress("", p, function() {
+        //put service doesn't generate any products.. (or could I create a *psudo* products?)
+        fs.writeFile("products.json", JSON.stringify([], null, 4), function(err) {
             process.exit(0);
         });
     });
