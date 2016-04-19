@@ -1,4 +1,8 @@
 {
+    "auth": {
+        "username": "hayashis",
+        "keytab": "5682f80ae8a834a636dee418.keytab"
+    },
     "get": [
         {"dir":"download", "path":"test/brain/life_demo_data_sda1.tar.gz"},
         {"dir":"download", "path":"test/brain/life_demo_data_sda2.tar.gz"}

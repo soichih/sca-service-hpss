@@ -48,7 +48,10 @@ if(config.get) for(var i = 0;i < config.get.length; i++) {
     progress(".file_"+i, {status: "waiting", name: config.get[i], progress: 0});
 }
 
-var context = new hpss.context();
+var context = new hpss.context({
+    username: config.auth.username,
+    keytab: fs.readFileSync(process.env.HOME+"/.sca/keys/"+config.auth.keytab),
+});
 
 //call hsi get on each paths listed in the request
 var getid = 0;
