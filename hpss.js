@@ -60,7 +60,6 @@ var products = {
 // get
 //
 
-
 //call hsi get on each paths listed in the request
 var getid = 0;
 if(config.get) async.eachSeries(config.get, function(get, next) {
@@ -68,10 +67,10 @@ if(config.get) async.eachSeries(config.get, function(get, next) {
     var destdir = get.localdir;
 
     products.type = "raw";
+    var key = ".file_"+(getid++);
 
     mkdirp(destdir, function (err) {
         if (err) return next(err);
-        var key = ".file_"+(getid++);
         context.get(_path, destdir, function(err) {
             if(err) {
                 progress(key, {status: "failed", msg: "Failed to get a file"}, function() {
