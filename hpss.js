@@ -14,10 +14,6 @@ var mkdirp = require('mkdirp');
 
 //mine
 var config = JSON.parse(fs.readFileSync("./config.json", "utf8"));
-var product = {
-    type: "raw",
-    files: []
-};
 
 //var taskdir = process.env.SCA_TASK_DIR;
 if(process.env.HPSS_BEHIND_FIREWALL) {
@@ -56,10 +52,14 @@ var context = new hpss.context({
     keytab: fs.readFileSync(process.env.HOME+"/.sca/keys/"+config.auth.keytab),
 });
 
+var products = {
+    files: []
+};
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 //
 // get
 //
+
 
 //call hsi get on each paths listed in the request
 var getid = 0;
@@ -67,20 +67,25 @@ if(config.get) async.eachSeries(config.get, function(get, next) {
     var _path = get.hpsspath;
     var destdir = get.localdir;
 
+    products.type = "raw";
+
     mkdirp(destdir, function (err) {
         if (err) return next(err);
         var key = ".file_"+(getid++);
-        var file = {filename: destdir+"/"+path.basename(_path)};
         context.get(_path, destdir, function(err) {
             if(err) {
                 progress(key, {status: "failed", msg: "Failed to get a file"}, function() {
                     next(); //skip this file and continue with other files
                 });
             } else {
-                file.type = mime.lookup(file.filename); //TODO should I use npm file-type instead?
-                var stats = fs.statSync(file.filename);
-                file.size = stats["size"];
-                product.files.push(file);
+                var filename = destdir+"/"+path.basename(_path);
+                var stats = fs.statSync(filename);
+                var file = {
+                    filename: filename,
+                    type: mime.lookup(filename), //TODO should I use npm file-type instead?
+                    size: stats["size"],
+                };
+                products.files.push(file);
                 progress(key, {status: "finished", progress: 1, msg: "Downloaded"}, next);
             }
         }, function(p) {
@@ -89,18 +94,17 @@ if(config.get) async.eachSeries(config.get, function(get, next) {
             else progress(key, {status: "running", progress: p.progress, msg: "Transferring data"});
         });
     }); 
-
 }, function(err) {
     var p = null;
-    if(getid == product.files.length) {
+    if(getid == products.files.length) {
         p = { status: "finished", msg: "Downloaded all requested files"};
     } else {
         //TODO - I really should report "incomplete" or such status.
-        p = { status: "finished", msg: "Downloaded "+product.files.length+" out of "+getid+" files requested"};
+        p = { status: "finished", msg: "Downloaded "+products.files.length+" out of "+getid+" files requested"};
     }
     progress("", p, function() {
         //write out output file and exit
-        fs.writeFile("products.json", JSON.stringify([product], null, 4), function(err) {
+        fs.writeFile("products.json", JSON.stringify([products], null, 4), function(err) {
             process.exit(0);
         });
     });
@@ -112,11 +116,11 @@ if(config.get) async.eachSeries(config.get, function(get, next) {
 //
 
 var putid = 0;
-var putcount = 0; //number of files successfully uploaded
 if(config.put) async.eachSeries(config.put, function(put, next) {
-    console.dir(put);
+    //console.dir(put);
     //put.localpath 
     //put.hpsspath
+    products.type = "hpss";
 
     //TODO - mkdirp on sda..
     //mkdirp(destdir, function (err) {
@@ -129,22 +133,28 @@ if(config.put) async.eachSeries(config.put, function(put, next) {
                 });
             } else {
                 progress(key, {status: "finished", progress: 1, msg: "Uploaded"}, next);
-                putcount++;
+                var stats = fs.statSync(put.localpath);
+                var file = {
+                    path: put.hpsspath,
+                    type: mime.lookup(put.localpath), //TODO should I use npm file-type instead?
+                    size: stats["size"],
+                };
+                products.files.push(file);
             }
         }, function(p) {
             progress(key, {status: "running", progress: p.progress, msg: "Transferring data"});
         });
 }, function(err) {
     var p = null;
-    if(getid == product.files.length) {
+    if(putid == products.files.length) {
         p = { status: "finished", msg: "Uploaded all requested files"};
     } else {
         //TODO - I really should report "incomplete" or such status.
-        p = { status: "finished", msg: "Uploaded "+putcount+" out of "+putid+" files requested"};
+        p = { status: "finished", msg: "Uploaded "+products.files.length+" out of "+putid+" files requested"};
     }
     progress("", p, function() {
         //put service doesn't generate any products.. (or could I create a *psudo* products?)
-        fs.writeFile("products.json", JSON.stringify([], null, 4), function(err) {
+        fs.writeFile("products.json", JSON.stringify([products], null, 4), function(err) {
             process.exit(0);
         });
     });
