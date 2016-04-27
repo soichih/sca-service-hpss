@@ -31,11 +31,6 @@
   },
   "sca": {
     "label": "HPSS",
-    "resource_query": {
-      "score": {
-        "hpss": 100
-      }
-    },
     "bin": {
       "start": "start.sh",
       "status": "status.sh"
