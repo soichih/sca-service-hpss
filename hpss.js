@@ -73,7 +73,7 @@ if(config.get) async.eachSeries(config.get, function(get, next) {
         if (err) return next(err);
         context.get(_path, destdir, function(err) {
             if(err) {
-                progress(key, {status: "failed", msg: err.toString()}, function() {
+                progress(key, {status: "failed", msg: err}, function() {
                     next(); //skip this file and continue with other files
                 });
             } else {
