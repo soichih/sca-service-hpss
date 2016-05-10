@@ -73,7 +73,7 @@ if(config.get) async.eachSeries(config.get, function(get, next) {
         if (err) return next(err);
         context.get(_path, destdir, function(err) {
             if(err) {
-                progress(key, {status: "failed", msg: "Failed to get a file"}, function() {
+                progress(key, {status: "failed", msg: erro.toString()}, function() {
                     next(); //skip this file and continue with other files
                 });
             } else {
@@ -104,7 +104,8 @@ if(config.get) async.eachSeries(config.get, function(get, next) {
     progress("", p, function() {
         //write out output file and exit
         fs.writeFile("products.json", JSON.stringify([products], null, 4), function(err) {
-            process.exit(0);
+            if(products.length > 0) process.exit(0);
+            else process.exit(1); 
         });
     });
 });
@@ -154,7 +155,8 @@ if(config.put) async.eachSeries(config.put, function(put, next) {
     progress("", p, function() {
         //put service doesn't generate any products.. (or could I create a *psudo* products?)
         fs.writeFile("products.json", JSON.stringify([products], null, 4), function(err) {
-            process.exit(0);
+            if(products.length > 0) process.exit(0);
+            else process.exit(1); 
         });
     });
 });
