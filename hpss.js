@@ -63,6 +63,9 @@ var products = {
 //call hsi get on each paths listed in the request
 var getid = 0;
 if(config.get) async.eachSeries(config.get, function(get, next) {
+    if(!get.localdir) return next("localdir not set for get request");
+    if(!get.hpsspath) return next("hpsspath not set for get request");
+
     var _path = get.hpsspath;
     var destdir = get.localdir;
 
@@ -122,28 +125,31 @@ if(config.put) async.eachSeries(config.put, function(put, next) {
     //put.hpsspath
     products.type = "hpss";
 
+    if(!put.localpath) return next("localpath not set for put request");
+    if(!put.hpsspath) return next("hpsspath not set for put request");
+
     //TODO - mkdirp on sda..
     //mkdirp(destdir, function (err) {
     //    if (err) return next(err);
-        var key = ".file_"+(putid++);
-        context.put(put.localpath, put.hpsspath, function(err) {
-            if(err) {
-                progress(key, {status: "failed", msg: "Failed to put a file:"+put.localpath}, function() {
-                    next(); //skip this file and continue with other files
-                });
-            } else {
-                progress(key, {status: "finished", progress: 1, msg: "Uploaded"}, next);
-                var stats = fs.statSync(put.localpath);
-                var file = {
-                    path: put.hpsspath,
-                    type: mime.lookup(put.localpath), //TODO should I use npm file-type instead?
-                    size: stats["size"],
-                };
-                products.files.push(file);
-            }
-        }, function(p) {
-            progress(key, {status: "running", progress: p.progress, msg: "Transferring data"});
-        });
+    var key = ".file_"+(putid++);
+    context.put(put.localpath, put.hpsspath, function(err) {
+        if(err) {
+            progress(key, {status: "failed", msg: "Failed to put a file:"+put.localpath}, function() {
+                next(); //skip this file and continue with other files
+            });
+        } else {
+            progress(key, {status: "finished", progress: 1, msg: "Uploaded"}, next);
+            var stats = fs.statSync(put.localpath);
+            var file = {
+                path: put.hpsspath,
+                type: mime.lookup(put.localpath), //TODO should I use npm file-type instead?
+                size: stats["size"],
+            };
+            products.files.push(file);
+        }
+    }, function(p) {
+        progress(key, {status: "running", progress: p.progress, msg: "Transferring data"});
+    });
 }, function(err) {
     var p = null;
     if(putid == products.files.length) {
