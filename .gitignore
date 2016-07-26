@@ -2,3 +2,5 @@ node_modules
 test/*.iso
 test/products.json
 example
+config.json
+products.json

@@ -1,5 +1,6 @@
 'use strict';
 
+
 //node
 var fs = require('fs');
 var exec = require('child_process').exec;
@@ -15,6 +16,11 @@ var mkdirp = require('mkdirp');
 //mine
 var config = JSON.parse(fs.readFileSync("./config.json", "utf8"));
 console.dir(config);
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+// TODO
+// currently, this service can handle only a single request per submission. You can't mis put/get/delete
+// requests inside a config.json. I should overhaul the config.json structure 
 
 //var taskdir = process.env.SCA_TASK_DIR;
 if(process.env.HPSS_BEHIND_FIREWALL) {
@@ -47,7 +53,7 @@ function progress(subkey, p, cb) {
     });
 }
 
-//report to progress service about all of the files that needs to be downloaded
+//report to progress service about all of the files that needs to be xfered
 if(config.get) for(var i = 0;i < config.get.length; i++) {
     progress(".file_"+i, {status: "waiting", name: config.get[i].hpsspath, progress: 0});
 }
@@ -84,6 +90,7 @@ if(config.get) async.eachSeries(config.get, function(get, next) {
         if (err) return next(err);
         context.get(_path, destdir, function(err) {
             if(err) {
+                console.error(err);
                 progress(key, {status: "failed", msg: err}, function() {
                     next(); //skip this file and continue with other files
                 });
@@ -115,8 +122,12 @@ if(config.get) async.eachSeries(config.get, function(get, next) {
     progress("", p, function() {
         //write out output file and exit
         fs.writeFile("products.json", JSON.stringify([products], null, 4), function(err) {
-            if(products.files.length > 0) process.exit(0);
-            else process.exit(1); 
+            if(products.files.length == config.get.length) {
+                process.exit(0);
+            } else {
+                console.error("couldn't get all files requested");
+                process.exit(1); 
+            }
         });
     });
 });
@@ -139,6 +150,7 @@ if(config.put) async.eachSeries(config.put, function(put, next) {
         var key = ".file_"+(putid++);
         context.put(put.localpath, put.hpsspath, function(err) {
             if(err) {
+                console.error(err);
                 progress(key, {status: "failed", msg: "Failed to put a file:"+put.localpath}, function() {
                     next(); //skip this file and continue with other files
                 });
@@ -167,8 +179,48 @@ if(config.put) async.eachSeries(config.put, function(put, next) {
     progress("", p, function() {
         //put service doesn't generate any products.. (or could I create a *psudo* products?)
         fs.writeFile("products.json", JSON.stringify([products], null, 4), function(err) {
-            if(products.files.length > 0) process.exit(0);
-            else process.exit(1); 
+            if(products.files.length == config.put.length) {
+                process.exit(0);
+            } else {
+                console.error("couldn't put all files requested");
+                process.exit(1); 
+            }
         });
     });
 });
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+//
+// remote a file in hpss
+//
+
+var removeid = 0;
+var removed = 0;
+if(config.remove) async.eachSeries(config.remove, function(del, next) {
+    if(!del.hpsspath) return next("hpsspath not set for remove request");
+
+    context.rm(del.hpsspath, function(err, out) {
+        var key = ".remove_"+(removeid++);
+        if(err) {
+            console.error(err);
+            progress(key, {status: "failed", msg: "Failed to remove a file:"+del.hpsspath}, function() {
+                next(); //skip this file and continue with other files
+            });
+        } else {
+            removed++;
+            progress(key, {status: "finished", progress: 1, msg: "Removed "+del.hpsspath}, next);
+        }
+    });
+}, function(err) {
+    //create empty products.json
+    fs.writeFile("products.json", JSON.stringify([]), function(err) {
+        if(removed == config.remove.length) {
+            process.exit(0);
+        } else {
+            console.error("couldn't remove all files requested");
+            process.exit(1); 
+        }
+    });
+});
+
+
