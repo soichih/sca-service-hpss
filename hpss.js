@@ -14,6 +14,7 @@ var mkdirp = require('mkdirp');
 
 //mine
 var config = JSON.parse(fs.readFileSync("./config.json", "utf8"));
+console.dir(config);
 
 //var taskdir = process.env.SCA_TASK_DIR;
 if(process.env.HPSS_BEHIND_FIREWALL) {
@@ -21,6 +22,13 @@ if(process.env.HPSS_BEHIND_FIREWALL) {
 }
 
 function progress(subkey, p, cb) {
+    if(!process.env.SCA_PROGRESS_URL) {
+        //console.log(subkey);
+        //console.dir(p);
+        if(cb) cb();
+        return; 
+    }
+    
     //var api = "https://soichi7.ppa.iu.edu/api/progress/status/"+process.env.SCA_PROGRESS_KEY;
     request({
         method: 'POST',
@@ -115,40 +123,38 @@ if(config.get) async.eachSeries(config.get, function(get, next) {
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 //
-// put
+// put a file in hpss (parent directory will be created automatically)
 //
 
 var putid = 0;
 if(config.put) async.eachSeries(config.put, function(put, next) {
-    //console.dir(put);
-    //put.localpath 
-    //put.hpsspath
     products.type = "hpss";
 
     if(!put.localpath) return next("localpath not set for put request");
     if(!put.hpsspath) return next("hpsspath not set for put request");
 
-    //TODO - mkdirp on sda..
-    //mkdirp(destdir, function (err) {
-    //    if (err) return next(err);
-    var key = ".file_"+(putid++);
-    context.put(put.localpath, put.hpsspath, function(err) {
-        if(err) {
-            progress(key, {status: "failed", msg: "Failed to put a file:"+put.localpath}, function() {
-                next(); //skip this file and continue with other files
-            });
-        } else {
-            progress(key, {status: "finished", progress: 1, msg: "Uploaded"}, next);
-            var stats = fs.statSync(put.localpath);
-            var file = {
-                path: put.hpsspath,
-                type: mime.lookup(put.localpath), //TODO should I use npm file-type instead?
-                size: stats["size"],
-            };
-            products.files.push(file);
-        }
-    }, function(p) {
-        progress(key, {status: "running", progress: p.progress, msg: "Transferring data"});
+    //mkdirp hpsspath
+    var dirname = path.dirname(put.hpsspath);
+    context.mkdir(dirname, {p: true}, function(err) {
+        var key = ".file_"+(putid++);
+        context.put(put.localpath, put.hpsspath, function(err) {
+            if(err) {
+                progress(key, {status: "failed", msg: "Failed to put a file:"+put.localpath}, function() {
+                    next(); //skip this file and continue with other files
+                });
+            } else {
+                progress(key, {status: "finished", progress: 1, msg: "Uploaded"}, next);
+                var stats = fs.statSync(put.localpath);
+                var file = {
+                    path: put.hpsspath,
+                    type: mime.lookup(put.localpath), //TODO should I use npm file-type instead?
+                    size: stats["size"],
+                };
+                products.files.push(file);
+            }
+        }, function(p) {
+            progress(key, {status: "running", progress: p.progress, msg: "Transferring data"});
+        });
     });
 }, function(err) {
     var p = null;
