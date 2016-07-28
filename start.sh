@@ -8,18 +8,12 @@
 module load hpss
 module load nodejs
 
-#debug..
-#env | sort | grep SCA
-
-#export PATH=$PATH:~/.sca/bin/node/bin
-
-#force reinstallation
-rm -rf node_modules
-
-#make sure all npm deps are installed
-#TODO - should be moved to install.sh?
-echo "installing/updating npm modules"
-(cd $SCA_SERVICE_DIR && npm update)
+#TODO - disable update until friday demo
+#I will need to update this so that
+#1) only 1 instance will actually do update (others should wait?)
+#2) only update if package.json is updated
+#echo "installing/updating npm modules"
+#(cd $SCA_SERVICE_DIR && npm update)
 
 rm -f finished
 echo "starting hpss.js"
