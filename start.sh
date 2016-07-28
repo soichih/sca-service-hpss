@@ -13,6 +13,9 @@ module load nodejs
 
 #export PATH=$PATH:~/.sca/bin/node/bin
 
+#force reinstallation
+rm -rf node_modules
+
 #make sure all npm deps are installed
 #TODO - should be moved to install.sh?
 echo "installing/updating npm modules"
