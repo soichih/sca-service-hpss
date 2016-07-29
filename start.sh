@@ -18,7 +18,7 @@ module load nodejs
 rm -f finished
 echo "starting hpss.js"
 (
-nohup node $SCA_SERVICE_DIR/hpss.js > stdout.log 2> stderr.log 
+nohup time node $SCA_SERVICE_DIR/hpss.js > stdout.log 2> stderr.log 
 echo $? > finished 
 ) &
 

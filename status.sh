@@ -16,7 +16,9 @@ if [ -f finished ]; then
         echo "finished successfully"
         exit 1 #success!
     else
-        echo "finished with code:$code"
+        echo "hpss.js finished with code:$code"
+        #cat stdout.log
+        cat stderr.log
         exit 2 #failed
     fi
 fi
