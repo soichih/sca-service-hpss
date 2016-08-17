@@ -103,12 +103,12 @@ if(config.get) async.eachSeries(config.get, function(get, next) {
                     size: stats["size"],
                 };
                 products.files.push(file);
-                next();
+                progress(key, {status: "finished", progress: 1, msg: "Downloaded"}, next);
             }
         }, function(p) {
+            //progress == 1 may or may not be called (and before / after the main cb is called!)
             if(p.progress == 0) progress(key, {status: "running", progress: 0, msg: "Loading from tape"});
-            else if(p.progress == 1) progress(key, {status: "finished", progress: p.progress, msg: "Downloaded"});
-            else progress(key, {status: "running", progress: p.progress, msg: "Transferring data"});
+            else if(p.progress != 1) progress(key, {status: "running", progress: p.progress, msg: "Transferring data"});
         });
     }); 
 }, function(err) {
@@ -162,11 +162,11 @@ if(config.put) async.eachSeries(config.put, function(put, next) {
                     size: stats["size"],
                 };
                 products.files.push(file);
-                next();
+                progress(key, {status: "finished", progress: 1, msg: "Uploaded"}, next);
             }
         }, function(p) {
-            if(p.progress == 1) progress(key, {status: "finished", progress: p.progress, msg: "Uploaded"});
-            else progress(key, {status: "running", progress: p.progress, msg: "Transferring data"});
+            //progress == 1 may or may not be called (and before / after the main cb is called!)
+            if(p.progress != 1) progress(key, {status: "running", progress: p.progress, msg: "Transferring data"});
         });
     });
 }, function(err) {
