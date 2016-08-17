@@ -103,6 +103,7 @@ if(config.get) async.eachSeries(config.get, function(get, next) {
                     size: stats["size"],
                 };
                 products.files.push(file);
+                next();
             }
         }, function(p) {
             if(p.progress == 0) progress(key, {status: "running", progress: 0, msg: "Loading from tape"});
@@ -161,6 +162,7 @@ if(config.put) async.eachSeries(config.put, function(put, next) {
                     size: stats["size"],
                 };
                 products.files.push(file);
+                next();
             }
         }, function(p) {
             if(p.progress == 1) progress(key, {status: "finished", progress: p.progress, msg: "Uploaded"});
@@ -176,7 +178,7 @@ if(config.put) async.eachSeries(config.put, function(put, next) {
         p = { status: "finished", msg: "Uploaded "+products.files.length+" out of "+putid+" files requested"};
     }
     progress("", p, function() {
-        //put service doesn't generate any products.. (or could I create a *psudo* products?)
+        //put service doesn't really generate any product, but to show which files are transferred, create a psudo-products.json..
         fs.writeFile("products.json", JSON.stringify([products], null, 4), function(err) {
             if(products.files.length == config.put.length) {
                 process.exit(0);
@@ -190,7 +192,7 @@ if(config.put) async.eachSeries(config.put, function(put, next) {
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 //
-// remote a file in hpss
+// remove file in hpss
 //
 
 var removeid = 0;
