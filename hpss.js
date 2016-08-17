@@ -103,11 +103,10 @@ if(config.get) async.eachSeries(config.get, function(get, next) {
                     size: stats["size"],
                 };
                 products.files.push(file);
-                progress(key, {status: "finished", progress: 1, msg: "Downloaded"}, next);
             }
         }, function(p) {
-            //if(p.total_size) file.size = p.total_size; //sometimes I don't get this info
             if(p.progress == 0) progress(key, {status: "running", progress: 0, msg: "Loading from tape"});
+            else if(p.progress == 1) progress(key, {status: "finished", progress: p.progress, msg: "Downloaded"});
             else progress(key, {status: "running", progress: p.progress, msg: "Transferring data"});
         });
     }); 
@@ -155,7 +154,6 @@ if(config.put) async.eachSeries(config.put, function(put, next) {
                     next(); //skip this file and continue with other files
                 });
             } else {
-                progress(key, {status: "finished", progress: 1, msg: "Uploaded"}, next);
                 var stats = fs.statSync(put.localpath);
                 var file = {
                     path: put.hpsspath,
@@ -165,7 +163,8 @@ if(config.put) async.eachSeries(config.put, function(put, next) {
                 products.files.push(file);
             }
         }, function(p) {
-            progress(key, {status: "running", progress: p.progress, msg: "Transferring data"});
+            if(p.progress == 1) progress(key, {status: "finished", progress: p.progress, msg: "Uploaded"});
+            else progress(key, {status: "running", progress: p.progress, msg: "Transferring data"});
         });
     });
 }, function(err) {
