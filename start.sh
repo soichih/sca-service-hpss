@@ -15,6 +15,9 @@ module load nodejs
 #echo "installing/updating npm modules"
 #(cd $SCA_SERVICE_DIR && npm update)
 
+#3) I should probably use hpss (especially for /get)
+#4) report to progress service
+
 rm -f finished
 echo "starting hpss.js"
 (

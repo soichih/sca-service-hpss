@@ -16,7 +16,7 @@ describe("#put", function() {
             } 
         }));
         process.env.HPSS_BEHIND_FIREWALL = "true";
-        exec("node hpss.js", {env: process.env}, (err, stdout, stderr) => {
+        exec("node hpss.js", {env: process.env}, function(err, stdout, stderr) {
             console.log("stdout");
             console.dir(stdout);
             console.log("stderr");

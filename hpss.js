@@ -91,7 +91,8 @@ if(config.get) async.eachSeries(config.get, function(get, next) {
         context.get(_path, destdir, function(err) {
             if(err) {
                 console.error(err);
-                progress(key, {status: "failed", msg: err}, function() {
+                progress(key, {status: "failed", msg: err}, function(err) {
+                    //ignore err
                     next(); //skip this file and continue with other files
                 });
             } else {
@@ -108,7 +109,7 @@ if(config.get) async.eachSeries(config.get, function(get, next) {
         }, function(p) {
             //progress == 1 may or may not be called (and before / after the main cb is called!)
             if(p.progress == 0) progress(key, {status: "running", progress: 0, msg: "Loading from tape"});
-            else if(p.progress != 1) progress(key, {status: "running", progress: p.progress, msg: "Transferring data"});
+            else if(p.progress != 1) progress(key, {status: "running", progress: p.progress, msg: "Downloading from HPSS cache"});
         });
     }); 
 }, function(err) {
@@ -151,7 +152,8 @@ if(config.put) async.eachSeries(config.put, function(put, next) {
         context.put(put.localpath, put.hpsspath, function(err) {
             if(err) {
                 console.error(err);
-                progress(key, {status: "failed", msg: "Failed to put a file:"+put.localpath}, function() {
+                progress(key, {status: "failed", msg: "Failed to put a file:"+put.localpath}, function(err) {
+                    //ignore err
                     next(); //skip this file and continue with other files
                 });
             } else {
@@ -166,7 +168,7 @@ if(config.put) async.eachSeries(config.put, function(put, next) {
             }
         }, function(p) {
             //progress == 1 may or may not be called (and before / after the main cb is called!)
-            if(p.progress != 1) progress(key, {status: "running", progress: p.progress, msg: "Transferring data"});
+            if(p.progress != 1) progress(key, {status: "running", progress: p.progress, msg: "Uploading"});
         });
     });
 }, function(err) {
