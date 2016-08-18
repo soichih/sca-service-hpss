@@ -18,6 +18,9 @@ module load nodejs
 #3) I should probably use hpss (especially for /get)
 #4) report to progress service
 
+#without this, I run into 'ascii' codec can't decode byte 0xc3 in position 1: ordinal not in range(128)
+export LANG=en_US.UTF-8
+
 rm -f finished
 echo "starting hpss.js"
 (
