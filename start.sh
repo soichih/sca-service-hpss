@@ -9,7 +9,7 @@ module load hpss
 module load nodejs
 
 #only allow 1 instance to do the update
-if [ -f $SCA_SERVICE_DIR/updating ]; then
+if [ ! -f $SCA_SERVICE_DIR/updating ]; then
     echo "updating npm"
     touch $SCA_SERVICE_DIR/updating
     (cd $SCA_SERVICE_DIR && npm update)
