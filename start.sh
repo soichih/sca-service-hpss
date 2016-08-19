@@ -8,18 +8,21 @@
 module load hpss
 module load nodejs
 
-#TODO - disable update until friday demo
-#I will need to update this so that
-#1) only 1 instance will actually do update (others should wait?)
-#2) only update if package.json is updated
-#echo "installing/updating npm modules"
-#(cd $SCA_SERVICE_DIR && npm update)
+#only allow 1 instance to do the update
+if [ -f $SCA_SERVICE_DIR/updating ]; then
+    echo "updating npm"
+    touch $SCA_SERVICE_DIR/updating
+    (cd $SCA_SERVICE_DIR && npm update)
+    rm $SCA_SERVICE_DIR/updating
+else
+    while [ -f $SCA_SERVICE_DIR/updating ]; do
+        echo "waiting for npm update"
+        sleep 5
+    done
+fi
 
 #3) I should probably use hpss (especially for /get)
 #4) report to progress service
-
-#without this, I run into 'ascii' codec can't decode byte 0xc3 in position 1: ordinal not in range(128)
-export LANG=en_US.UTF-8
 
 rm -f finished
 echo "starting hpss.js"
