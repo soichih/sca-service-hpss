@@ -201,39 +201,19 @@ var removeid = 0;
 var removed = 0;
 if(config.remove) async.eachSeries(config.remove, function(del, next) {
     if(!del.hpsspath) return next("hpsspath not set for remove request");
-    if (del.directory) {
-	context.rmdir(del.hpsspath, function(err, out) {
-                var key = ".remove_"+(removeid++);
-		var dir_msg = "Directory not empty";
-                if(err && !err.includes(dir_msg)) {
-                    console.error(err);
-                    progress(key, {status: "failed", msg: "Failed to remove a directory:"+del.hpsspath}, function() {
-                            next(); //skip this directory  and continue with other files
-			});
-                } else {
-		    var message = "Removed Dir ";
-		    if (err && err.includes(dir_msg)) {
-			message = dir_msg+" (skipping) ";
-		    }
-                    removed++;
-                    progress(key, {status: "finished", progress: 1, msg: message+del.hpsspath}, next);
-                }
+
+    context.rm(del.hpsspath, function(err, out) {
+        var key = ".remove_"+(removeid++);
+        if(err) {
+            console.error(err);
+            progress(key, {status: "failed", msg: "Failed to remove a file:"+del.hpsspath}, function() {
+                next(); //skip this file and continue with other files
             });
-    }
-    else {
-	context.rm(del.hpsspath, function(err, out) {
-		var key = ".remove_"+(removeid++);
-		if(err) {
-		    console.error(err);
-		    progress(key, {status: "failed", msg: "Failed to remove a file:"+del.hpsspath}, function() {
-			    next(); //skip this file and continue with other files
-			});
-		} else {
-		    removed++;
-		    progress(key, {status: "finished", progress: 1, msg: "Removed "+del.hpsspath}, next);
-		}
-	    });
-    }
+        } else {
+            removed++;
+            progress(key, {status: "finished", progress: 1, msg: "Removed "+del.hpsspath}, next);
+        }
+    });
 }, function(err) {
     //create empty products.json
     fs.writeFile("products.json", JSON.stringify([]), function(err) {
@@ -247,3 +227,44 @@ if(config.remove) async.eachSeries(config.remove, function(del, next) {
 });
 
 
+///////////////////////////////////////////////////////////////////////////////////////////////////
+//
+// remove directory in hpss
+//
+
+var rmdirid = 0;
+var rmdired = 0;
+if(config.rmdir) async.eachSeries(config.rmdir, function(del, next) {
+	if(!del.hpsspath) return next("hpsspath not set for rmdir request");
+	
+	context.rmdir(del.hpsspath, function(err, out) {
+		var key = ".rmdir_"+(rmdirid++);
+		if(err) {
+		    if (err.code == 64) {
+			//directory is non-empty... skip
+			rmdired++;
+			progress(key, {status: "finished", progress: 1, msg: "Skipped non-empty directory "+del.hpsspath}, next);
+		    } else {
+			//unknown error
+			console.error(err);
+			progress(key, {status: "failed", msg: "Failed to remove a directory:"+del.hpsspath}, function() {
+				next(); //skip this directory and continue with other directory
+			    });
+		    }
+		} else {
+		    //success 
+		    rmdired++;
+		    progress(key, {status: "finished", progress: 1, msg: "Removed "+del.hpsspath}, next);
+		}
+	    });
+    }, function(err) {
+	//create empty products.json
+	fs.writeFile("products.json", JSON.stringify([]), function(err) {
+		if(rmdired == config.rmdir.length) {
+		    process.exit(0);
+		} else {
+		    console.error("couldn't remove all directories requested");
+		    process.exit(1); 
+		}
+	    });
+    });
