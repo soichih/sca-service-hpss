@@ -22,32 +22,23 @@ console.dir(config);
 // currently, this service can handle only a single request per submission. You can't mis put/get/delete
 // requests inside a config.json. I should overhaul the config.json structure 
 
-//var taskdir = process.env.SCA_TASK_DIR;
 if(process.env.HPSS_BEHIND_FIREWALL) {
     hpss.init({behind_firewall:true});
 }
 
 function progress(subkey, p, cb) {
-    if(!process.env.SCA_PROGRESS_URL) {
+    if(!process.env.PROGRESS_URL) {
         //console.log(subkey);
         //console.dir(p);
         if(cb) cb();
         return; 
     }
     
-    //var api = "https://soichi7.ppa.iu.edu/api/progress/status/"+process.env.SCA_PROGRESS_KEY;
     request({
         method: 'POST',
-        //url: process.env.SCA_PROGRESS_URL+"/"+process.env.SCA_PROGRESS_KEY+subkey,
-        url: process.env.SCA_PROGRESS_URL+subkey,
-        /*
-        headers: {
-            'Authorization': 'Bearer '+config.progress.jwt,
-        },
-        */
+        url: process.env.PROGRESS_URL+subkey,
         json: p, 
     }, function(err, res, body){
-        //console.log("posted progress update:"+subkey);
         console.dir([subkey, p]);
         if(cb) cb(err, body);
     });

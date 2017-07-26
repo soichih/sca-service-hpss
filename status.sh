@@ -5,9 +5,6 @@
 #return code 2 = failed
 #return code 3 = unknown
 
-##now wait for running to go away
-#progress_url={$SCA_PROGRESS_URL}/{$SCA_PROGRESS_KEY}
-
 #TODO I should submit interactive session to run this
 
 if [ -f finished ]; then
